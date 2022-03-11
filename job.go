@@ -27,10 +27,16 @@ type Job struct {
 	nextRun           time.Time       // datetime of next run
 	scheduledWeekdays []time.Weekday  // Specific days of the week to start on
 	daysOfTheMonth    []int           // Specific days of the month to run the job
+	weekdaysOfMonth   monthWeekday    // Specific weekday of the month to run
 	tags              []string        // allow the user to tag Jobs with certain labels
 	runCount          int             // number of times the job ran
 	timer             *time.Timer     // handles running tasks at specific time
 	cronSchedule      cron.Schedule   // stores the schedule when a task uses cron
+}
+
+type monthWeekday struct {
+	Weekday time.Weekday
+	Week    int
 }
 
 type jobFunction struct {

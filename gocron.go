@@ -33,6 +33,7 @@ var (
 	ErrUpdateCalledWithoutJob           = errors.New("a call to Scheduler.Update() requires a call to Scheduler.Job() first")
 	ErrCronParseFailure                 = errors.New("cron expression failed to be parsed")
 	ErrInvalidDaysOfMonthDuplicateValue = errors.New("duplicate days of month is not allowed in Month() and Months() methods")
+	ErrInvalidMonthWeek                 = errors.New("week values are 1, 2, 3 or 4 for MonthWeekdayWeek")
 )
 
 func wrapOrError(toWrap error, err error) error {

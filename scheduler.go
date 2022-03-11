@@ -242,6 +242,10 @@ func (s *Scheduler) durationToNextRun(lastRun time.Time, job *Job) nextRun {
 }
 
 func (s *Scheduler) calculateMonths(job *Job, lastRun time.Time) nextRun {
+	if job.weekdaysOfMonth.Week != 0 {
+		return calculateNextRunForWeekdayWeek(s, job, lastRun)
+	}
+
 	lastRunRoundedMidnight := s.roundToMidnight(lastRun)
 
 	// Special case: the last day of the month
@@ -269,6 +273,10 @@ func (s *Scheduler) calculateMonths(job *Job, lastRun time.Time) nextRun {
 	}
 	next := lastRunRoundedMidnight.Add(job.getFirstAtTime()).AddDate(0, job.interval, 0)
 	return nextRun{duration: until(lastRun, next), dateTime: next}
+}
+
+func calculateNextRunForWeekdayWeek(s *Scheduler, job *Job, lastRun time.Time) nextRun {
+	// should handle At time
 }
 
 func calculateNextRunForLastDayOfMonth(s *Scheduler, job *Job, lastRun time.Time) nextRun {
@@ -696,17 +704,6 @@ Jobs:
 	return nil, ErrJobNotFoundWithTag
 }
 
-// MonthFirstWeekday sets the job to run the first specified weekday of the month
-func (s *Scheduler) MonthFirstWeekday(weekday time.Weekday) *Scheduler {
-	_, month, day := s.time.Now(time.UTC).Date()
-
-	if day < 7 {
-		return s.Cron(fmt.Sprintf("0 0 %d %d %d", day, month, weekday))
-	}
-
-	return s.Cron(fmt.Sprintf("0 0 %d %d %d", day, month+1, weekday))
-}
-
 // LimitRunsTo limits the number of executions of this job to n.
 // Upon reaching the limit, the job is removed from the scheduler.
 func (s *Scheduler) LimitRunsTo(i int) *Scheduler {
@@ -1032,6 +1029,35 @@ func (s *Scheduler) Months(daysOfTheMonth ...int) *Scheduler {
 // more than the number of days in that month, the extra day(s)
 // spill over to the next month. Similarly, if it's less than 0,
 // it will go back to the month before
+
+// MonthFirstWeekday sets the job to run the first specified weekday of the month
+func (s *Scheduler) MonthFirstWeekday(weekday time.Weekday) *Scheduler {
+	_, month, day := s.time.Now(time.UTC).Date()
+
+	if day < 7 {
+		return s.Cron(fmt.Sprintf("0 0 %d %d %d", day, month, weekday))
+	}
+
+	return s.Cron(fmt.Sprintf("0 0 %d %d %d", day, month+1, weekday))
+}
+
+// MonthWeekdayByWeek runs the job on the specified weekday and week.
+// For example, every 1st Wednesday would be: MonthWeekdayByWeek(time.Wednesday, 1)
+func (s *Scheduler) MonthWeekdayByWeek(weekday time.Weekday, week int) *Scheduler {
+	job := s.getCurrentJob()
+
+	if week > 4 || week < 1 {
+		job.error = wrapOrError(job.error, ErrInvalidMonthWeek)
+		return s
+	}
+
+	job.setUnit(months)
+	job.weekdaysOfMonth = monthWeekday{
+		Weekday: weekday,
+		Week:    week,
+	}
+	return s
+}
 
 // Weekday sets the scheduledWeekdays with a specifics weekdays
 func (s *Scheduler) Weekday(weekDay time.Weekday) *Scheduler {
