@@ -3,6 +3,7 @@ package gocron
 import (
 	"fmt"
 	"log"
+	"reflect"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -2072,6 +2073,40 @@ func TestScheduler_CheckSetBehaviourBeforeJobCreated(t *testing.T) {
 	s := NewScheduler(time.UTC)
 	s.Month(1, 2).Every(1).Do(func() {})
 
+}
+
+func TestScheduler_calculateWeekday(t *testing.T) {
+	type args struct {
+		job     *Job
+		lastRun time.Time
+	}
+	tests := []struct {
+		name string
+		args args
+		want nextRun
+	}{
+		{
+			name: "",
+			args: args{
+				job:     nil,
+				lastRun: time.Time{},
+			},
+			want: nextRun{
+				duration: 0,
+				dateTime: time.Time{},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Scheduler{
+				time: &trueTime{},
+			}
+			if got := s.calculateWeekday(tt.args.job, tt.args.lastRun); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("calculateWeekday() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
 
 func TestScheduler_MonthLastDayAtTime(t *testing.T) {
