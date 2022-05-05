@@ -123,7 +123,10 @@ func (j *Job) getFirstAtTime() time.Duration {
 	return t
 }
 
-func (j *Job) getAtTime(lastRun time.Time) time.Duration {
+// getNextAtTime returns the time.Duration representing times defined at .At().
+// Some examples include the duration from 00:00 to "03:30", "15:45", etc.
+// It returns a duration of 0 if there are no available times after lastRun.
+func (j *Job) getNextAtTime(lastRun time.Time) time.Duration {
 	var r time.Duration
 	if len(j.atTimes) == 0 {
 		return r
