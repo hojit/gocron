@@ -2,9 +2,8 @@ package gocron_test
 
 import (
 	"fmt"
+	"github.com/hojit/gocron"
 	"time"
-
-	"github.com/go-co-op/gocron"
 )
 
 var task = func() {}

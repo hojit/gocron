@@ -186,7 +186,7 @@ func Test_getFunctionName(t *testing.T) {
 			args: args{
 				fn: Test_getFunctionName,
 			},
-			want: "github.com/go-co-op/gocron.Test_getFunctionName",
+			want: "github.com/hojit/gocron.Test_getFunctionName",
 		},
 	}
 	for _, tt := range tests {
