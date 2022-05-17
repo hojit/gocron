@@ -3,13 +3,13 @@ package gocron
 import (
 	"context"
 	"fmt"
+	"github.com/tovenja/cron/v3"
 	"reflect"
 	"sort"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/robfig/cron/v3"
 	"golang.org/x/sync/semaphore"
 )
 
